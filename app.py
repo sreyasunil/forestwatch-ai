@@ -455,6 +455,12 @@ if st.session_state.get("analyzed"):
 
     with col2:
         # Detection result
+        # Detection result
+        ml_before_label = result['ml_before']['class_label'] if result['ml_available'] else "N/A"
+        ml_after_label = result['ml_after']['class_label'] if result['ml_available'] else "N/A"
+        ml_before_conf = int(result['ml_before']['confidence'] * 100) if result['ml_available'] else 0
+        ml_after_conf = int(result['ml_after']['confidence'] * 100) if result['ml_available'] else 0
+
         st.markdown(f"""
         <div class='result-panel'>
             <div class='result-panel-title'>Detection Result</div>
@@ -478,6 +484,26 @@ if st.session_state.get("analyzed"):
             <div class='ndvi-row'>
                 <span class='ndvi-label'>Currently forested</span>
                 <span class='ndvi-value'>{"Yes" if result['is_forested'] else "No"}</span>
+            </div>
+        </div>
+        <div class='result-panel'>
+            <div class='result-panel-title'>AI Land Cover Classification</div>
+            <div class='ndvi-row'>
+                <span class='ndvi-label'>Before period</span>
+                <div style='text-align:right;'>
+                    <div class='ndvi-value'>{ml_before_label}</div>
+                    <div class='ndvi-date'>Confidence: {ml_before_conf}%</div>
+                </div>
+            </div>
+            <div class='ndvi-row'>
+                <span class='ndvi-label'>After period</span>
+                <div style='text-align:right;'>
+                    <div class='ndvi-value'>{ml_after_label}</div>
+                    <div class='ndvi-date'>Confidence: {ml_after_conf}%</div>
+                </div>
+            </div>
+            <div style='font-size:0.72rem;color:#3a5a4a;margin-top:0.8rem;'>
+                Random Forest classifier — 8 Sentinel-2 features
             </div>
         </div>
         """, unsafe_allow_html=True)

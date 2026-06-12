@@ -4,3 +4,4 @@ __pycache__/
 .env
 *.json
 .streamlit/secrets.toml
+rf_model.joblib
