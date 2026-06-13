@@ -363,6 +363,17 @@ if analyze_clicked:
                 after_end.strftime("%Y-%m-%d"),
                 cloud_cover
             )
+            # Fetch time series
+            from core.timeseries import get_ndvi_timeseries
+            try:
+                ts_df = get_ndvi_timeseries(
+                    lat, lon,
+                    before_start.strftime("%Y-%m-%d"),
+                    after_end.strftime("%Y-%m-%d")
+                )
+                st.session_state["timeseries"] = ts_df
+            except Exception:
+                st.session_state["timeseries"] = None
             carbon = estimate_carbon_impact(result["ndvi_change"], result["was_forested"])
             st.session_state["result"] = result
             st.session_state["carbon"] = carbon
@@ -445,13 +456,18 @@ if st.session_state.get("analyzed"):
         ).add_to(m)
         st_folium(m, height=380, use_container_width=True)
 
-        # NDVI bar chart
-        st.markdown("<div class='map-header' style='margin-top:1.2rem;'>NDVI Comparison</div>", unsafe_allow_html=True)
-        chart_df = pd.DataFrame({
-            "Period": ["Before", "After"],
-            "NDVI": [result["before"]["ndvi_mean"], result["after"]["ndvi_mean"]]
-        }).set_index("Period")
-        st.bar_chart(chart_df, color="#4a9e5c", height=180)
+        # NDVI time series
+        st.markdown("<div class='map-header' style='margin-top:1.2rem;'>NDVI Time Series</div>", unsafe_allow_html=True)
+        if "timeseries" in st.session_state and st.session_state["timeseries"] is not None:
+            ts_df = st.session_state["timeseries"].set_index("Date")
+            st.line_chart(ts_df, color="#4a9e5c", height=200)
+        else:
+            # Fallback to bar chart if time series not loaded
+            chart_df = pd.DataFrame({
+                "Period": ["Before", "After"],
+                "NDVI": [result["before"]["ndvi_mean"], result["after"]["ndvi_mean"]]
+            }).set_index("Period")
+            st.bar_chart(chart_df, color="#4a9e5c", height=180)
 
     with col2:
         # Detection result
