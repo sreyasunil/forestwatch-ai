@@ -10,7 +10,7 @@ load_dotenv()
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 
-NDVI_ALERT_THRESHOLD = -0.05  # trigger alert if NDVI drops more than this
+NDVI_ALERT_THRESHOLD = -0.05 # trigger alert if NDVI drops more than this
 
 
 def send_telegram_message(message: str) -> bool:
