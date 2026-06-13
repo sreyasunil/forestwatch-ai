@@ -377,6 +377,10 @@ if analyze_clicked:
             carbon = estimate_carbon_impact(result["ndvi_change"], result["was_forested"])
             st.session_state["result"] = result
             st.session_state["carbon"] = carbon
+            # Send Telegram alert if deforestation detected
+            from utils.alerts import check_and_alert
+            alert_result = check_and_alert(region_name, result, carbon)
+            st.session_state["alert_result"] = alert_result
             st.session_state["analyzed"] = True
         except Exception as e:
             st.error(f"Analysis failed: {e}")
