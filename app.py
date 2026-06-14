@@ -50,7 +50,6 @@ st.markdown("""
 header[data-testid="stHeader"] { display: none !important; }
 .block-container { padding: 2.5rem 2rem 6rem !important; max-width: 100% !important; }
 
-/* Typography */
 .fw-wordmark {
     font-family: 'Inter', sans-serif;
     font-size: 0.7rem;
@@ -74,8 +73,6 @@ header[data-testid="stHeader"] { display: none !important; }
     font-weight: 400;
     letter-spacing: 0.01em;
 }
-
-/* Sidebar labels */
 .sidebar-label {
     font-size: 0.7rem;
     font-weight: 600;
@@ -91,8 +88,6 @@ header[data-testid="stHeader"] { display: none !important; }
     background: #1a2e28;
     margin: 1.2rem 0;
 }
-
-/* Status bar */
 .status-bar {
     display: flex;
     gap: 1.5rem;
@@ -118,9 +113,6 @@ header[data-testid="stHeader"] { display: none !important; }
     background: #4a9e5c;
     box-shadow: 0 0 6px #4a9e5c;
 }
-.status-dot.inactive { background: #ff6b4a; box-shadow: 0 0 6px #ff6b4a; }
-
-/* Metric cards */
 .metric-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -155,13 +147,7 @@ header[data-testid="stHeader"] { display: none !important; }
 .metric-number.positive { color: #4a9e5c; }
 .metric-number.negative { color: #ff6b4a; }
 .metric-number.neutral { color: #e8ede9; }
-.metric-sub {
-    font-size: 0.72rem;
-    color: #4a6e5c;
-    font-weight: 400;
-}
-
-/* Result panel */
+.metric-sub { font-size: 0.72rem; color: #4a6e5c; font-weight: 400; }
 .result-panel {
     background: #0c1512;
     border: 1px solid #1a2e28;
@@ -179,8 +165,6 @@ header[data-testid="stHeader"] { display: none !important; }
     padding-bottom: 0.6rem;
     border-bottom: 1px solid #1a2e28;
 }
-
-/* Detection badge */
 .detection-badge {
     display: inline-block;
     padding: 0.35rem 0.8rem;
@@ -194,8 +178,6 @@ header[data-testid="stHeader"] { display: none !important; }
 .badge-moderate { background: rgba(255,193,7,0.1); color: #e6ac00; border: 1px solid rgba(255,193,7,0.25); }
 .badge-low { background: rgba(74,158,92,0.1); color: #4a9e5c; border: 1px solid rgba(74,158,92,0.25); }
 .badge-none { background: rgba(74,158,92,0.1); color: #4a9e5c; border: 1px solid rgba(74,158,92,0.25); }
-
-/* NDVI row */
 .ndvi-row {
     display: flex;
     align-items: center;
@@ -212,8 +194,6 @@ header[data-testid="stHeader"] { display: none !important; }
     color: #e8ede9;
 }
 .ndvi-date { font-size: 0.68rem; color: #3a5a4a; }
-
-/* Empty state */
 .empty-state {
     display: flex;
     flex-direction: column;
@@ -224,15 +204,8 @@ header[data-testid="stHeader"] { display: none !important; }
     border: 1px dashed #1a2e28;
     border-radius: 8px;
 }
-.empty-state-title {
-    font-size: 1rem;
-    font-weight: 600;
-    color: #3a5a4a;
-    margin-bottom: 0.4rem;
-}
+.empty-state-title { font-size: 1rem; font-weight: 600; color: #3a5a4a; margin-bottom: 0.4rem; }
 .empty-state-sub { font-size: 0.82rem; color: #2a3e32; }
-
-/* Map panel */
 .map-header {
     font-size: 0.65rem;
     font-weight: 600;
@@ -241,8 +214,6 @@ header[data-testid="stHeader"] { display: none !important; }
     color: #4a6e5c;
     margin-bottom: 0.5rem;
 }
-
-/* Sidebar analyze button override */
 [data-testid="stButton"] button {
     background: #1a3a28 !important;
     color: #4a9e5c !important;
@@ -261,8 +232,6 @@ header[data-testid="stHeader"] { display: none !important; }
     border-color: #4a9e5c !important;
     color: #6ab87a !important;
 }
-
-/* Footer */
 .fw-footer {
     position: fixed;
     bottom: 0; left: 0;
@@ -285,6 +254,24 @@ header[data-testid="stHeader"] { display: none !important; }
 .footer-item span { color: #4a9e5c; }
 </style>
 """, unsafe_allow_html=True)
+
+# -----------------------------
+# Cached functions
+# -----------------------------
+@st.cache_data(ttl=3600, show_spinner=False)
+def cached_analysis(lat, lon, before_start, before_end, after_start, after_end, cloud_cover):
+    from core.change_detection import detect_forest_change
+    return detect_forest_change(lat, lon, before_start, before_end, after_start, after_end, cloud_cover)
+
+@st.cache_data(ttl=3600, show_spinner=False)
+def cached_timeseries(lat, lon, start, end):
+    from core.timeseries import get_ndvi_timeseries
+    return get_ndvi_timeseries(lat, lon, start, end)
+
+@st.cache_data(ttl=3600, show_spinner=False)
+def cached_anomaly(lat, lon, start, end):
+    from core.anomaly_detection import detect_anomalies
+    return detect_anomalies(lat, lon, start, end)
 
 # -----------------------------
 # Sidebar
@@ -337,7 +324,6 @@ if not gee_ok:
     st.error(f"Google Earth Engine connection failed: {gee_error}")
     st.stop()
 
-# Status bar
 st.markdown(f"""
 <div class='status-bar'>
     <div class='status-item'><div class='status-dot'></div>GEE Connected</div>
@@ -355,7 +341,7 @@ st.markdown(f"""
 if analyze_clicked:
     with st.spinner("Fetching satellite imagery from Google Earth Engine..."):
         try:
-            result = detect_forest_change(
+            result = cached_analysis(
                 lat, lon,
                 before_start.strftime("%Y-%m-%d"),
                 before_end.strftime("%Y-%m-%d"),
@@ -363,10 +349,13 @@ if analyze_clicked:
                 after_end.strftime("%Y-%m-%d"),
                 cloud_cover
             )
-            # Fetch time series
-            from core.timeseries import get_ndvi_timeseries
+            carbon = estimate_carbon_impact(result["ndvi_change"], result["was_forested"])
+            st.session_state["result"] = result
+            st.session_state["carbon"] = carbon
+
+            # Time series
             try:
-                ts_df = get_ndvi_timeseries(
+                ts_df = cached_timeseries(
                     lat, lon,
                     before_start.strftime("%Y-%m-%d"),
                     after_end.strftime("%Y-%m-%d")
@@ -374,14 +363,24 @@ if analyze_clicked:
                 st.session_state["timeseries"] = ts_df
             except Exception:
                 st.session_state["timeseries"] = None
-            carbon = estimate_carbon_impact(result["ndvi_change"], result["was_forested"])
-            st.session_state["result"] = result
-            st.session_state["carbon"] = carbon
-            # Send Telegram alert if deforestation detected
+
+            # Anomaly detection
+            try:
+                anomaly_result = cached_anomaly(
+                    lat, lon,
+                    before_start.strftime("%Y-%m-%d"),
+                    after_end.strftime("%Y-%m-%d")
+                )
+                st.session_state["anomaly"] = anomaly_result
+            except Exception:
+                st.session_state["anomaly"] = None
+
+            # Telegram alert
             from utils.alerts import check_and_alert
             alert_result = check_and_alert(region_name, result, carbon)
             st.session_state["alert_result"] = alert_result
             st.session_state["analyzed"] = True
+
         except Exception as e:
             st.error(f"Analysis failed: {e}")
             st.session_state["analyzed"] = False
@@ -407,7 +406,6 @@ if st.session_state.get("analyzed"):
     change_class = "negative" if ndvi_change < 0 else "positive"
     change_sign = "+" if ndvi_change >= 0 else ""
 
-    # Top metric strip
     st.markdown(f"""
     <div class='metric-grid'>
         <div class='metric-cell'>
@@ -466,16 +464,54 @@ if st.session_state.get("analyzed"):
             ts_df = st.session_state["timeseries"].set_index("Date")
             st.line_chart(ts_df, color="#4a9e5c", height=200)
         else:
-            # Fallback to bar chart if time series not loaded
             chart_df = pd.DataFrame({
                 "Period": ["Before", "After"],
                 "NDVI": [result["before"]["ndvi_mean"], result["after"]["ndvi_mean"]]
             }).set_index("Period")
             st.bar_chart(chart_df, color="#4a9e5c", height=180)
 
+        if st.session_state.get("anomaly"):
+            anom = st.session_state["anomaly"]
+            anom_color = "#ff6b4a" if anom["has_anomalies"] else "#4a9e5c"
+            
+            st.markdown(f"""
+            <div class='map-header' style='margin-top:1.2rem;'>Anomaly Detection — Isolation Forest</div>
+            <div class='result-panel' style='margin-top:0.5rem;'>
+                <div class='result-panel-title'>Anomalous Months Detected</div>
+                <div class='ndvi-row'>
+                    <span class='ndvi-label'>Total anomalies</span>
+                    <span class='ndvi-value' style='color:{anom_color};'>{anom['anomaly_count']} / {anom['total_months']} months</span>
+                </div>
+                <div class='ndvi-row'>
+                    <span class='ndvi-label'>Most anomalous month</span>
+                    <div style='text-align:right;'>
+                        <div class='ndvi-value'>{anom['worst_month']}</div>
+                        <div class='ndvi-date'>NDVI {anom['worst_ndvi']} — score {anom['worst_score']}</div>
+                    </div>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+
+            for a in anom["anomalies"]:
+                st.markdown(f"""
+                <div class='result-panel' style='margin-top:-0.6rem;'>
+                    <div class='ndvi-row'>
+                        <span class='ndvi-label'>{a['Date']}</span>
+                        <div style='text-align:right;'>
+                            <div class='ndvi-value' style='color:#ff6b4a;'>NDVI {a['NDVI']}</div>
+                            <div class='ndvi-date'>Anomaly score: {a['anomaly_score']}</div>
+                        </div>
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
+
+            st.markdown("""
+            <div style='font-size:0.72rem;color:#3a5a4a;margin-top:0.4rem;'>
+                Isolation Forest — trained on NDVI, month, rolling mean, rate of change
+            </div>
+            """, unsafe_allow_html=True)
+
     with col2:
-        # Detection result
-        # Detection result
         ml_before_label = result['ml_before']['class_label'] if result['ml_available'] else "N/A"
         ml_after_label = result['ml_after']['class_label'] if result['ml_available'] else "N/A"
         ml_before_conf = int(result['ml_before']['confidence'] * 100) if result['ml_available'] else 0
@@ -528,7 +564,6 @@ if st.session_state.get("analyzed"):
         </div>
         """, unsafe_allow_html=True)
 
-        # NDVI detail
         st.markdown(f"""
         <div class='result-panel'>
             <div class='result-panel-title'>NDVI Detail</div>
@@ -557,7 +592,6 @@ if st.session_state.get("analyzed"):
         </div>
         """, unsafe_allow_html=True)
 
-        # Carbon
         st.markdown(f"""
         <div class='result-panel'>
             <div class='result-panel-title'>Carbon Impact Estimate</div>
