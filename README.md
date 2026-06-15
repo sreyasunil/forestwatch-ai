@@ -29,6 +29,20 @@ The goal is early detection. A system that tells you forest was lost three month
 
 ---
 
+## Intended Users
+
+ForestWatch AI is designed for:
+
+* Government forest and environmental agencies
+* Conservation and environmental NGOs
+* Climate and biodiversity researchers
+* Land-use monitoring organizations
+* ESG and sustainability teams
+
+The platform supports satellite-based forest monitoring, deforestation detection, and environmental impact assessment to enable faster, data-driven decision making.
+
+---
+
 ## Technology Stack
 
 | Component | Technology |
