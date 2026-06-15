@@ -5,18 +5,13 @@ import os
 def initialize_gee(project: str = "nexora-491517"):
     """
     Initialize GEE with two auth modes:
-    
-    Local development:
-    Uses credentials saved by ee.Authenticate() on your machine.
-    
-    Deployed (Streamlit Cloud):
-    Uses service account JSON stored in st.secrets.
-    Never stored in code or repo.
+    Local: uses credentials saved by ee.Authenticate()
+    Deployed: uses service account JSON from Streamlit secrets
     """
-    # Check if running on Streamlit Cloud with secrets configured
+    # Try Streamlit secrets first
     try:
         import streamlit as st
-        if hasattr(st, 'secrets') and 'GEE_SERVICE_ACCOUNT' in st.secrets:
+        if "GEE_SERVICE_ACCOUNT" in st.secrets:
             service_account_info = json.loads(st.secrets["GEE_SERVICE_ACCOUNT"])
             credentials = ee.ServiceAccountCredentials(
                 email=service_account_info["client_email"],
@@ -24,7 +19,7 @@ def initialize_gee(project: str = "nexora-491517"):
             )
             ee.Initialize(credentials=credentials, project=project)
             return True
-    except Exception:
+    except Exception as e:
         pass
 
     # Fall back to local credentials
