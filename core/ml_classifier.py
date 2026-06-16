@@ -5,8 +5,8 @@ from sklearn.metrics import classification_report
 import joblib
 import os
 import ee
-from core.gee_auth import initialize_gee
-initialize_gee()
+# from core.gee_auth import initialize_gee
+# initialize_gee()
 # -----------------------------
 # Why this file exists:
 # Your current change_detection.py uses if/else thresholds to classify

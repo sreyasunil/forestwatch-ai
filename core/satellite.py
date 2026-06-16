@@ -1,7 +1,7 @@
 import ee
-from core.gee_auth import initialize_gee
+# from core.gee_auth import initialize_gee
 
-initialize_gee()
+# initialize_gee()
 
 def get_sentinel2_ndvi(
     lat: float,

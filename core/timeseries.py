@@ -1,8 +1,8 @@
 import ee
 import pandas as pd
-from core.gee_auth import initialize_gee
+# from core.gee_auth import initialize_gee
 
-initialize_gee()
+# initialize_gee()
 
 def get_ndvi_timeseries(
     lat: float,

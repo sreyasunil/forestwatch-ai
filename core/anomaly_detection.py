@@ -1,10 +1,10 @@
 import numpy as np
 import pandas as pd
 from sklearn.ensemble import IsolationForest
-from core.gee_auth import initialize_gee
+# from core.gee_auth import initialize_gee
 from core.timeseries import get_ndvi_timeseries
 
-initialize_gee()
+# initialize_gee()
 
 def build_features(df: pd.DataFrame) -> np.ndarray:
     """
