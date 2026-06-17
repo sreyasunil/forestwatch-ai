@@ -53,4 +53,5 @@ def initialize_gee(project: str = "nexora-491517"):
             ee.Initialize(project=project)
             return True
         except Exception as e2:
-            raise RuntimeError(f"GEE initialization failed: {e2}")
+            secret_exists = "GEE_SERVICE_ACCOUNT" in st.secrets if hasattr(st, 'secrets') else False
+            raise RuntimeError(f"GEE failed. Secret exists: {secret_exists}. Error: {e2}")

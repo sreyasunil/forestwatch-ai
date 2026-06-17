@@ -322,6 +322,11 @@ st.markdown("""
 
 if not gee_ok:
     st.error(f"Google Earth Engine connection failed: {gee_error}")
+    try:
+        import streamlit as st as st2
+        st.write("Secrets available:", list(st.secrets.keys()))
+    except Exception as se:
+        st.write(f"Secrets error: {se}")
     st.stop()
 
 st.markdown(f"""
