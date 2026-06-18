@@ -34,24 +34,28 @@ import ee
 import json
 import os
 
-def initialize_gee(project: str = "nexora-491517"):
+import ee
+import json
+import streamlit as st
+
+def initialize_gee(project="nexora-491517"):
     try:
-        import streamlit as st
-        if "GEE_SERVICE_ACCOUNT" in st.secrets:
-            service_account_info = json.loads(st.secrets["GEE_SERVICE_ACCOUNT"])
-            credentials = ee.ServiceAccountCredentials(
-                email=service_account_info["client_email"],
-                key_data=json.dumps(service_account_info)
-            )
-            ee.Initialize(credentials=credentials, project=project)
-            return True
+        gee_secret = st.secrets["GEE_SERVICE_ACCOUNT"]
+
+        print(type(gee_secret))
+
+        if isinstance(gee_secret, str):
+            service_account_info = json.loads(gee_secret)
         else:
-            raise RuntimeError("GEE_SERVICE_ACCOUNT not found in secrets")
+            service_account_info = dict(gee_secret)
+
+        credentials = ee.ServiceAccountCredentials(
+            email=service_account_info["client_email"],
+            key_data=json.dumps(service_account_info)
+        )
+
+        ee.Initialize(credentials=credentials, project=project)
+        return True
+
     except Exception as e:
-        # Fall back to local credentials
-        try:
-            ee.Initialize(project=project)
-            return True
-        except Exception as e2:
-            secret_exists = "GEE_SERVICE_ACCOUNT" in st.secrets if hasattr(st, 'secrets') else False
-            raise RuntimeError(f"GEE failed. Secret exists: {secret_exists}. Error: {e2}")
+        raise RuntimeError(f"GEE init failed: {e}")
