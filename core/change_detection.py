@@ -55,13 +55,15 @@ def detect_forest_change(
     ml_after = None
     ml_available = False
 
-    if os.path.exists("core/rf_model.joblib"):
-        try:
-            ml_before = predict_land_cover(before["bands"])
-            ml_after = predict_land_cover(after["bands"])
-            ml_available = True
-        except Exception as e:
-            ml_available = False
+    try:
+        if not os.path.exists("core/rf_model.joblib"):
+            from core.ml_classifier import train_model
+            train_model(lat, lon)
+        ml_before = predict_land_cover(before["bands"])
+        ml_after = predict_land_cover(after["bands"])
+        ml_available = True
+    except Exception as e:
+        ml_available = False
 
     return {
         "before": before,
