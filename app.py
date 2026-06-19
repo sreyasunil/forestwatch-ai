@@ -47,7 +47,7 @@ st.markdown("""
     border-right: 1px solid #1a2e28 !important;
 }
 [data-testid="stSidebar"] > div { padding-top: 2rem; }
-header[data-testid="stHeader"] { display: none !important; }
+header[data-testid="stHeader"] { background: transparent !important; }
 .block-container { padding: 2.5rem 2rem 6rem !important; max-width: 100% !important; }
 
 .fw-wordmark {
