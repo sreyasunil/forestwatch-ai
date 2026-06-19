@@ -631,9 +631,3 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# Debug — remove after fixing
-try:
-    import streamlit as st
-    st.write("Secrets keys:", list(st.secrets.keys()))
-except:
-    st.write("Could not read secrets")
