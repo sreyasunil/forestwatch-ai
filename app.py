@@ -322,7 +322,6 @@ st.markdown("""
 
 if not gee_ok:
     st.error(f"Google Earth Engine connection failed: {gee_error}")
-    st.write("Secret keys:", list(st.secrets.keys()) if st.secrets else "No secrets")
     st.stop()
 
 st.markdown(f"""
