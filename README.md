@@ -1,6 +1,7 @@
 # ForestWatch AI
 
 > Real-time deforestation detection and climate impact analysis using Sentinel-2 satellite imagery and Google Earth Engine.
+
 **Live demo:** https://fwatch-ai.streamlit.app
 
 Built by [Sreya Sunil](https://github.com/sreyasunil)
